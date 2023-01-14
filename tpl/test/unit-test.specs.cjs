@@ -1,6 +1,10 @@
+/**
+ * To generate tests for ESM:
+ * $> npm run build:test
+ */
 const {expect} = require("chai");
 
-describe("The .cjs module", () =>
+describe("On cjs/index.cjs", () =>
 {
     it("should work", function ()
     {
