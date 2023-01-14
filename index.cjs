@@ -160,6 +160,7 @@ const init = async function (argv, {
             return
         }
 
+        let binName = simplifiedCliOptions.bin;
 
         const currentDir = process.cwd();
 
@@ -204,7 +205,7 @@ const init = async function (argv, {
         // Generate d.ts
         const mjsPath = joinPath(mjsFolder, entryPoint + MJS_EXTENSION);
         runShellCommand(`tsc ${mjsPath} --declaration --allowJs --emitDeclarationOnly --outDir .`);
-        let dtsPath = normalisePath( entryPoint + DTS_EXTENSION);
+        let dtsPath = normalisePath(entryPoint + DTS_EXTENSION);
 
         // Copy template files
         const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
@@ -235,6 +236,19 @@ const init = async function (argv, {
         }
         json.license = json.license || "MIT";
         json.author = json.author || authorName;
+
+        if (binName)
+        {
+            json.bin = json.bin || {};
+            json.bin[binName] = cjsPath;
+
+            let content = readFileSync(cjsPath, {encoding: "utf-8"}) || "";
+            if (!content.trim().startsWith("#!"))
+            {
+                content = `#!/usr/bin/env node\n\n` + content;
+                writeFileSync(cjsPath, content, {encoding: "utf-8"});
+            }
+        }
 
         const content = JSON.stringify(json, null, 2);
         writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
