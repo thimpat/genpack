@@ -173,7 +173,7 @@ const init = async function (argv, {
 
         json.scripts["test:ts"] = "nyc mocha --config test/config/.mocharc.json";
         json.scripts["test:js"] = "nyc mocha";
-        json.scripts["test"] = "npm run test:js && npm run test:ts";
+        json.scripts["test"] = "npm run build:all && npm run test:js && npm run test:ts";
 
         const content = JSON.stringify(json, null, 2);
         writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
