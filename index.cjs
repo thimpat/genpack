@@ -47,6 +47,7 @@ const setupConsole = function ()
 const runShellCommand = function(commandLine)
 {
     const {stdout, stderr} = shell.exec(commandLine, {async: false, silent: true})
+    console.log({lid: "GP6000", color: "#656242"}, "$> " + commandLine);
     if (stdout)
     {
         const lines = stdout.split("\n")
@@ -67,7 +68,13 @@ const runShellCommand = function(commandLine)
         const lines = stderr.split("\n")
         for (let i = 0; i < lines.length; ++i)
         {
-            console.log({lid: "GP4458"}, lines[i]);
+            const line = lines[i];
+            if (line.indexOf("ERROR:") > -1)
+            {
+                anaLogger.rawLog(line);
+                continue;
+            }
+            console.log({lid: "GP4458"}, line);
         }
     }
 }
@@ -139,7 +146,7 @@ const init = async function (argv, {
 
         // Generate .mjs
         const mjsFolder = normalisePath(mjsFolderName);
-        shell.exec(`to-esm ${cjsPath} --output ${mjsFolder} --update-all --extension .mjs`);
+        runShellCommand(`to-esm ${cjsPath} --output ${mjsFolder} --update-all --extension .mjs`);
 
         // Generate d.ts
         const mjsPath = joinPath(mjsFolder, entryPoint + MJS_EXTENSION);
