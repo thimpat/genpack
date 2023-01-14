@@ -6,7 +6,7 @@
     "./test/config/register.mjs"
   ],
   "spec": [
-    "test/**/*.spec.ts"
+    "test/**/*.specs.ts"
   ],
   "node-option": [
     "experimental-specifier-resolution=node",
