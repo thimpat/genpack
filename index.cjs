@@ -167,7 +167,7 @@ const init = async function (argv, {
 
         // Copy template files
         const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
-        clonefile(tplFolder, currentDir);
+        clonefile(tplFolder, currentDir, {force: false, silent: true, hideOverwriteError: true});
 
         // Update package.json
         const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
