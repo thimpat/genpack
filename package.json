@@ -1,0 +1,29 @@
+{
+  "bin": {
+    "genpack": "index.cjs"
+  },
+  "name": "genpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@thimpat/libutils": "^1.15.8",
+    "analogger": "^1.22.1",
+    "clonefile": "^3.7.2",
+    "minimist": "^1.2.7",
+    "shelljs": "^0.8.5",
+    "to-esm": "^2.27.0",
+    "typescript": "^4.9.4"
+  }
+}
