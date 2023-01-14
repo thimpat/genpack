@@ -22,6 +22,7 @@ const README_NAME = "README.md";
 
 const CJS_EXTENSION = ".cjs";
 const MJS_EXTENSION = ".mjs";
+const DTS_EXTENSION = ".d.mts";
 
 const TEMPLATE_FOLDER = "tpl";
 
@@ -48,7 +49,7 @@ const setupConsole = function ()
     anaLogger.overrideError();
 };
 
-const runShellCommand = function(commandLine)
+const runShellCommand = function (commandLine)
 {
     const {stdout, stderr} = shell.exec(commandLine, {async: false, silent: true})
     console.log({lid: "GP6000", color: "#656242"}, "$> " + commandLine);
@@ -126,6 +127,13 @@ const init = async function (argv, {
 
         const cjsFolder = normalisePath(cjsFolderName);
 
+        let brandNewRepo = false;
+        const gitPath = normalisePath(".git");
+        if (!existsSync(gitPath))
+        {
+            brandNewRepo = true;
+        }
+
         if (!existsSync(cjsFolder))
         {
             console.error({lid: "GP1531"}, `No cjs folder: [${cjsFolder}]`);
@@ -155,6 +163,7 @@ const init = async function (argv, {
         // Generate d.ts
         const mjsPath = joinPath(mjsFolder, entryPoint + MJS_EXTENSION);
         runShellCommand(`tsc ${mjsPath} --declaration --allowJs --emitDeclarationOnly --outDir .`);
+        let dtsPath = normalisePath( entryPoint + DTS_EXTENSION);
 
         // Copy template files
         const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
@@ -166,7 +175,7 @@ const init = async function (argv, {
 
         const packageName = json.name;
         json.main = `${mjsPath}`;
-        json.typings = `${mjsPath}`;
+        json.typings = `${dtsPath}`;
         json.type = "module";
         json.scripts = json.scripts || {};
 
@@ -179,6 +188,12 @@ const init = async function (argv, {
         json.scripts["test:js"] = "nyc mocha";
         json.scripts["test"] = "npm run build:all && npm run test:js && npm run test:ts";
 
+        if (brandNewRepo)
+        {
+            json.license = "MIT";
+        }
+        json.license = json.license || "MIT";
+
         const content = JSON.stringify(json, null, 2);
         writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
 
@@ -189,10 +204,8 @@ const init = async function (argv, {
         generateGitIgnore(currentDir);
         generateNpmIgnore(currentDir);
 
-
         // Setup repo if non-existent
-        const gitPath = normalisePath(".git");
-        if (!existsSync(gitPath))
+        if (brandNewRepo)
         {
             runShellCommand(`git init`);
             runShellCommand(`git add ${README_NAME}`);
@@ -211,7 +224,19 @@ const init = async function (argv, {
         const lastMessage = getLastCommitMessage();
         if (lastMessage === INITIAL_COMMIT_MESSAGE)
         {
-            const indexFiles = [".gitignore", ".npmignore",  "LICENSE",  "cjs/",  "esm/",  "index.d.mts",  "package-lock.json",  "package.json",  "test/"]
+            const indexFiles = [
+                ".gitignore",
+                ".npmignore",
+                "LICENSE",
+                "cjs/",
+                "esm/",
+                "index.d.mts",
+                "package-lock.json",
+                "package.json",
+                "test/",
+                "tsconfig.json",
+                ".to-esm.cjs"
+            ]
             for (let i = 0; i < indexFiles.length; ++i)
             {
                 const filename = indexFiles[i];
