@@ -123,6 +123,17 @@ const init = async function (argv, {
 
         setupConsole();
 
+        let genpackVersion
+        const genpackPackageJsonPath = joinPath(__dirname, "package.json");
+        const info = require(genpackPackageJsonPath);
+        genpackVersion = info.version;
+        if (simplifiedCliOptions.v || simplifiedCliOptions.version)
+        {
+            console.rawLog(genpackVersion);
+            return
+        }
+
+
         const currentDir = process.cwd();
 
         const cjsFolder = normalisePath(cjsFolderName);
