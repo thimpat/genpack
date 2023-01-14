@@ -192,6 +192,9 @@ const init = async function (argv, {
         runShellCommand(`npm run build:all`);
         runShellCommand(`npm test`);
 
+        console.log({lid: "GP1998"}, `==============================`)
+        console.log({lid: "GP2000"}, `Package successfully generated`)
+
         return true;
     }
     catch (e)
