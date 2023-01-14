@@ -1,7 +1,7 @@
 
 ## Description
 
-GenPack is a package generator
+GenPack is a package generator for npm
 
 <br/>
 
