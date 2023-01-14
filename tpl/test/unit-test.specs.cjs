@@ -4,6 +4,17 @@
  */
 const {expect} = require("chai");
 
+/** to-esm-esm: remove **/
+// Put here, what you want to execute in cjs
+// const {...} = require("../cjs/index.cjs");
+/** to-esm-esm: end-remove **/
+
+/** to-esm-esm: add
+// Put here, what you want to execute in esm
+import {...} from "../esm/index.mjs";
+ **/
+
+
 describe("On cjs/index.cjs", () =>
 {
     it("should work", function ()
