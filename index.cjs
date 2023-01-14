@@ -9,10 +9,14 @@ const {joinPath, normalisePath} = require("@thimpat/libutils");
 const {clonefile} = require("clonefile");
 const {getHumanFileSize} = require("./utils/utils.cjs");
 const {anaLogger} = require("analogger");
+const {generateGitIgnore, generateNpmIgnore, getLastCommitMessage} = require("./utils/core.cjs");
 
 const CJS_FOLDER = "cjs";
 const ESM_FOLDER = "esm";
 const CJS_ENTRY_POINT = "index";
+
+const INITIAL_COMMIT_MESSAGE = "Initial commit";
+const SECOND_COMMIT_MESSAGE = "BUILD: Add GenPack files";
 
 const README_NAME = "README.md";
 
@@ -198,6 +202,19 @@ const init = async function (argv, {
         // Run launchers
         runShellCommand(`npm run build:all`);
         runShellCommand(`npm test`);
+
+        const lastMessage = getLastCommitMessage();
+        if (lastMessage === INITIAL_COMMIT_MESSAGE)
+        {
+            const indexFiles = [".gitignore", ".npmignore",  "LICENSE",  "cjs/",  "esm/",  "index.d.mts",  "package-lock.json",  "package.json",  "test/"]
+            for (let i = 0; i < indexFiles.length; ++i)
+            {
+                const filename = indexFiles[i];
+                runShellCommand(`git add ${filename}`);
+            }
+
+            runShellCommand(`git commit -m "${SECOND_COMMIT_MESSAGE}"`);
+        }
 
         console.log({lid: "GP1998"}, `==============================`)
         console.log({lid: "GP2000"}, `Package successfully generated`)
