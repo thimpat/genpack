@@ -1,0 +1,8 @@
+/node_modules/
+/.nyc_output/
+/test/
+/tsconfig.json
+/.to-esm.cjs
+/.idea/
+/.vscode/
+/*.tgz
