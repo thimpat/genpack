@@ -9,7 +9,7 @@ const {joinPath, normalisePath} = require("@thimpat/libutils");
 const {clonefile} = require("clonefile");
 const {getHumanFileSize} = require("./utils/utils.cjs");
 const {anaLogger} = require("analogger");
-const {generateGitIgnore, generateNpmIgnore, getLastCommitMessage} = require("./utils/core.cjs");
+const {generateGitIgnore, generateNpmIgnore, getLastCommitMessage, getUserName} = require("./utils/core.cjs");
 
 const CJS_FOLDER = "cjs";
 const ESM_FOLDER = "esm";
@@ -19,6 +19,7 @@ const INITIAL_COMMIT_MESSAGE = "Initial commit";
 const SECOND_COMMIT_MESSAGE = "BUILD: Add GenPack files";
 
 const README_NAME = "README.md";
+const LICENSE_NAME = "LICENSE";
 
 const CJS_EXTENSION = ".cjs";
 const MJS_EXTENSION = ".mjs";
@@ -111,6 +112,32 @@ const generateReadme = function ({packageName, cjsPath, mjsPath})
     return false;
 };
 
+const generateLicense = function ({packageName, authorName = ""})
+{
+    try
+    {
+        authorName = authorName.trim();
+        if (!authorName)
+        {
+            return
+        }
+
+        const licensePath = normalisePath(LICENSE_NAME);
+        let content = readFileSync(licensePath, {encoding: "utf-8"});
+        content = content.replaceAll("##author##", packageName);
+
+        writeFileSync(licensePath, content, {encoding: "utf-8"});
+
+        return true;
+    }
+    catch (e)
+    {
+        console.error({lid: "GP4453"}, e.message);
+    }
+
+    return false;
+};
+
 const init = async function (argv, {
     cjsFolderName = CJS_FOLDER,
     mjsFolderName = ESM_FOLDER,
@@ -138,7 +165,10 @@ const init = async function (argv, {
 
         const cjsFolder = normalisePath(cjsFolderName);
 
+        // Key values
+        const authorName = getUserName();
         let brandNewRepo = false;
+
         const gitPath = normalisePath(".git");
         if (!existsSync(gitPath))
         {
@@ -204,12 +234,16 @@ const init = async function (argv, {
             json.license = "MIT";
         }
         json.license = json.license || "MIT";
+        json.author = json.author || authorName;
 
         const content = JSON.stringify(json, null, 2);
         writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
 
         // Generate readme file
         generateReadme({packageName, cjsPath, mjsPath});
+
+        // Generate license file
+        generateLicense({packageName, authorName});
 
         // Generate .gitignore and .npmignore
         generateGitIgnore(currentDir);

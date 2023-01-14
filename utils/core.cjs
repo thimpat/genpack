@@ -33,10 +33,20 @@ const generateNpmIgnore = function (folderPath = process.cwd())
 const getLastCommitMessage = () =>
 {
     // Get commit for most recent tag
-    return shell.exec(`git log -1 --pretty="%B"`, {silent: true}).stdout.trim();
+    let str =  shell.exec(`git log -1 --pretty="%B"`, {silent: true}).stdout.trim() || "";
+    return str.trim();
+};
+
+const getUserName = () =>
+{
+    // Get commit for most recent tag
+    let str = shell.exec(`git config --global user.name`, {silent: true}).stdout.trim() || "";
+    return str.trim();
 };
 
 module.exports.generateGitIgnore = generateGitIgnore;
 module.exports.generateNpmIgnore = generateNpmIgnore;
+
 module.exports.getLastCommitMessage = getLastCommitMessage;
+module.exports.getUserName = getUserName;
 
