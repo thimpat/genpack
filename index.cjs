@@ -156,7 +156,7 @@ const init = async function (argv, {
         const mjsPath = joinPath(mjsFolder, entryPoint + MJS_EXTENSION);
         runShellCommand(`tsc ${mjsPath} --declaration --allowJs --emitDeclarationOnly --outDir .`);
 
-        // Generate typescript config for tests
+        // Copy template files
         const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
         clonefile(tplFolder, currentDir);
 
@@ -185,13 +185,18 @@ const init = async function (argv, {
         // Generate readme file
         generateReadme({packageName, cjsPath, mjsPath});
 
+        // Generate .gitignore and .npmignore
+        generateGitIgnore(currentDir);
+        generateNpmIgnore(currentDir);
+
+
         // Setup repo if non-existent
         const gitPath = normalisePath(".git");
         if (!existsSync(gitPath))
         {
             runShellCommand(`git init`);
             runShellCommand(`git add ${README_NAME}`);
-            runShellCommand(`git commit -m "Initial commit"`);
+            runShellCommand(`git commit -m "${INITIAL_COMMIT_MESSAGE}"`);
         }
 
         // Install dependencies
