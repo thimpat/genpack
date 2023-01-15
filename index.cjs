@@ -26,12 +26,14 @@ const SECOND_COMMIT_MESSAGE = "BUILD: Add GenPack files";
 
 const README_NAME = "README.md";
 const LICENSE_NAME = "LICENSE";
+const BINARY_CLI_NAME = "cli.js";
 
 const CJS_EXTENSION = ".cjs";
 const MJS_EXTENSION = ".mjs";
 const DTS_EXTENSION = ".d.mts";
 
 const TEMPLATE_FOLDER = "tpl";
+const CONDITIONAL_TEMPLATE_FOLDER = "tpl-optional";
 
 const LOG_CONTEXTS = {
     DEFAULT: {color: "#689148"}
@@ -200,7 +202,16 @@ const init = async function (argv, {
             return
         }
 
-        let binName = simplifiedCliOptions.bin;
+        let cliName = simplifiedCliOptions.cli || simplifiedCliOptions.bin;
+        if (cliName === true)
+        {
+            cliName = BINARY_CLI_NAME;
+        }
+        else if (!cliName.endsWith("js"))
+        {
+            cliName = cliName + ".js";
+        }
+
         let repoUrl = simplifiedCliOptions.repo;
 
         const currentDir = process.cwd();
@@ -210,6 +221,9 @@ const init = async function (argv, {
         // Key values
         const authorName = getUserName();
         let brandNewRepo = false;
+        const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
+        const conditionalTplFolder = joinPath(__dirname, CONDITIONAL_TEMPLATE_FOLDER);
+
 
         const gitPath = normalisePath(".git");
         if (!existsSync(gitPath))
@@ -249,8 +263,7 @@ const init = async function (argv, {
         let dtsPath = normalisePath(entryPoint + DTS_EXTENSION);
 
         // Copy template files
-        const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
-        clonefile(tplFolder, currentDir, {force: brandNewRepo, silent: true, hideOverwriteError: true});
+        clonefile(tplFolder, currentDir, {force: brandNewRepo, silent: false, hideOverwriteError: true});
 
         // Update package.json
         const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
@@ -278,17 +291,15 @@ const init = async function (argv, {
         json.license = json.license || "MIT";
         json.author = json.author || authorName;
 
-        if (binName)
+        let cliPath = "";
+        if (cliName)
         {
+            cliPath = normalisePath(cliName);
             json.bin = json.bin || {};
-            json.bin[binName] = cjsPath;
+            json.bin[cliName] = cliPath;
 
-            let content = readFileSync(cjsPath, {encoding: "utf-8"}) || "";
-            if (!content.trim().startsWith("#!"))
-            {
-                content = `#!/usr/bin/env node\n\n` + content;
-                writeFileSync(cjsPath, content, {encoding: "utf-8"});
-            }
+            const srcCliPath = joinPath(conditionalTplFolder, BINARY_CLI_NAME);
+            clonefile(srcCliPath, cliPath, {silent: false, hideOverwriteError: true});
         }
 
         const content = JSON.stringify(json, null, 2);
