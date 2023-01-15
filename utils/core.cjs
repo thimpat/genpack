@@ -44,9 +44,23 @@ const getUserName = () =>
     return str.trim();
 };
 
+const addRepoOrigin = (url, origin = "origin") =>
+{
+    let currentRepo = shell.exec(`git remote -v`, {silent: true}).stdout.trim() || "";
+    if (currentRepo.trim())
+    {
+        return
+    }
+
+    // Get commit for most recent tag
+    shell.exec(`git remote add ${origin} ${url}`, {silent: true}).stdout.trim();
+};
+
 module.exports.generateGitIgnore = generateGitIgnore;
 module.exports.generateNpmIgnore = generateNpmIgnore;
 
+// Git stuff
 module.exports.getLastCommitMessage = getLastCommitMessage;
 module.exports.getUserName = getUserName;
+module.exports.addRepoOrigin = addRepoOrigin;
 

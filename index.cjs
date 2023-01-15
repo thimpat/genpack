@@ -9,7 +9,13 @@ const {joinPath, normalisePath} = require("@thimpat/libutils");
 const {clonefile} = require("clonefile");
 const {getHumanFileSize} = require("./utils/utils.cjs");
 const {anaLogger} = require("analogger");
-const {generateGitIgnore, generateNpmIgnore, getLastCommitMessage, getUserName} = require("./utils/core.cjs");
+const {
+    generateGitIgnore,
+    generateNpmIgnore,
+    getLastCommitMessage,
+    getUserName,
+    addRepoOrigin
+} = require("./utils/core.cjs");
 
 const CJS_FOLDER = "cjs";
 const ESM_FOLDER = "esm";
@@ -138,6 +144,40 @@ const generateLicense = function ({packageName, authorName = ""})
     return false;
 };
 
+const addRepoInformation = function ({repoUrl, packageJsonPath})
+{
+    const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
+    const json = JSON.parse(packageJsonContent);
+
+    if (json.repository)
+    {
+        return;
+    }
+
+    addRepoOrigin(repoUrl);
+    const memDepencies = json.dependencies || {};
+    const memDevDepencies = json.devDependencies || {};
+    runShellCommand(`npm init -y`);
+
+    const info = {}
+    info.dependencies = Object.assign({}, memDepencies);
+    info.memDevDepencies = Object.assign({}, memDevDepencies);
+
+    setTimeout(function (info)
+    {
+        const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
+        const json = JSON.parse(packageJsonContent);
+
+        json.dependencies = info.dependencies;
+        json.memDevDepencies =  info.memDevDepencies;
+
+        const content = JSON.stringify(json, null, 2);
+        writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
+
+    }.bind(null, info), 5000)
+
+}
+
 const init = async function (argv, {
     cjsFolderName = CJS_FOLDER,
     mjsFolderName = ESM_FOLDER,
@@ -161,6 +201,7 @@ const init = async function (argv, {
         }
 
         let binName = simplifiedCliOptions.bin;
+        let repoUrl = simplifiedCliOptions.repo;
 
         const currentDir = process.cwd();
 
@@ -195,7 +236,7 @@ const init = async function (argv, {
         const packageJsonPath = joinPath(currentDir, "package.json");
         if (!existsSync(packageJsonPath))
         {
-            runShellCommand(`npm -y init`);
+            runShellCommand(`npm init -y`);
         }
 
         // Generate .mjs
@@ -252,6 +293,11 @@ const init = async function (argv, {
 
         const content = JSON.stringify(json, null, 2);
         writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
+
+        if (repoUrl)
+        {
+            addRepoInformation({repoUrl, packageJsonPath});
+        }
 
         // Generate readme file
         generateReadme({packageName, cjsPath, mjsPath});
