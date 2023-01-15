@@ -379,11 +379,16 @@ const init = async function (argv, {
                 "package.json",
                 "test/",
                 "tsconfig.json",
-                ".to-esm.cjs"
+                ".to-esm.cjs",
+                "cli.js",
             ]
             for (let i = 0; i < indexFiles.length; ++i)
             {
                 const filename = indexFiles[i];
+                if (!existsSync(filename))
+                {
+                    continue;
+                }
                 runShellCommand(`git add ${filename}`);
             }
 
