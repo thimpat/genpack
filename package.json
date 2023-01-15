@@ -3,7 +3,7 @@
     "genpack": "index.cjs"
   },
   "name": "genpack",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "GenPack is a package generator",
   "main": "index.cjs",
   "scripts": {
