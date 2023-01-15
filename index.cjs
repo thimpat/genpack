@@ -219,7 +219,7 @@ const init = async function (argv, {
         const cjsFolder = normalisePath(cjsFolderName);
 
         // Key values
-        const authorName = getUserName();
+        const authorName = simplifiedCliOptions.author || getUserName();
         let brandNewRepo = false;
         const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
         const conditionalTplFolder = joinPath(__dirname, CONDITIONAL_TEMPLATE_FOLDER);
