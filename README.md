@@ -72,12 +72,14 @@ You will obtain an NPM hybrid package working with cjs, esm and typescript.
 
 ## Options
 
-| **Options**   | **default** | **Expect** | **Description**                            | 
-|---------------|-------------|------------|--------------------------------------------|
-| --version, -v | false       | boolean    | _Display GenPack version_                  |
-| --repo        |             | string     | _Repo URL_                                 |
-| --cli         | false       | boolean    | _To have the generated module support CLI_ |
-| --author      |             | string     | _Author name_                              |
+| **Options**   | **default** | **Expect**                         | **Description**                            | 
+|---------------|-------------|------------------------------------|--------------------------------------------|
+| --version, -v | false       | boolean                            | _Display GenPack version_                  |
+| --repo        |             | string                             | _Repo URL_                                 |
+| --cli         | false       | boolean                            | _To have the generated module support CLI_ |
+| --author      |             | string                             | _Author name_                              |
+| --email       |             | string                             | _Author email_                             |
+| --license     |             | mit, cc0_1, bsd, isc, bsd-2-clause | _To generate a license for the module_     |
 
 <br/>
 
