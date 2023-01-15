@@ -44,6 +44,13 @@ const getUserName = () =>
     return str.trim();
 };
 
+const getUserEmail = () =>
+{
+    // Get commit for most recent tag
+    let str = shell.exec(`git config --global user.email`, {silent: true}).stdout.trim() || "";
+    return str.trim();
+};
+
 const addRepoOrigin = (url, origin = "origin") =>
 {
     let currentRepo = shell.exec(`git remote -v`, {silent: true}).stdout.trim() || "";
@@ -62,5 +69,6 @@ module.exports.generateNpmIgnore = generateNpmIgnore;
 // Git stuff
 module.exports.getLastCommitMessage = getLastCommitMessage;
 module.exports.getUserName = getUserName;
+module.exports.getUserEmail = getUserEmail;
 module.exports.addRepoOrigin = addRepoOrigin;
 

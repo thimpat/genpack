@@ -14,6 +14,7 @@ const {
     generateNpmIgnore,
     getLastCommitMessage,
     getUserName,
+    getUserEmail,
     addRepoOrigin
 } = require("./utils/core.cjs");
 
@@ -26,6 +27,7 @@ const SECOND_COMMIT_MESSAGE = "BUILD: Add GenPack files";
 
 const README_NAME = "README.md";
 const LICENSE_NAME = "LICENSE";
+const DEFAULT_LICENSE = "MIT";
 const BINARY_CLI_NAME = "cli.js";
 
 const CJS_EXTENSION = ".cjs";
@@ -93,7 +95,7 @@ const runShellCommand = function (commandLine)
     }
 }
 
-const generateReadme = function ({packageName, cjsPath, mjsPath})
+const generateReadme = function ({packageName, cjsPath})
 {
     try
     {
@@ -120,21 +122,44 @@ const generateReadme = function ({packageName, cjsPath, mjsPath})
     return false;
 };
 
-const generateLicense = function ({packageName, authorName = ""})
+/**
+ *
+ * @param type
+ * @param json
+ * @returns {boolean}
+ */
+const generateLicense = (type, json, {email = ""} = {}) =>
 {
     try
     {
-        authorName = authorName.trim();
-        if (!authorName)
+        if (!type)
         {
-            return
+            return false;
+        }
+        json.license = type.toUpperCase().replaceAll("_", " ");
+
+        // Copy license
+        let authorName = json.author;
+        const srcLicensePath = joinPath(__dirname, CONDITIONAL_TEMPLATE_FOLDER, LICENSE_NAME + "." + type);
+        if (!existsSync(srcLicensePath))
+        {
+            console.error({lid: 1345}, `The ${json.license} license is not supported.`)
+            console.log({lid: 1346}, `Please, send a PR to ${json?.repository?.url?.split("git+")[1]} if you want this license to be part of GenPack.`);
+            console.log({lid: 1348}, `The new license should be placed in ./genpack/tpl/`);
+            console.log({lid: 1350}, `Thank you`);
+            return false;
         }
 
-        const licensePath = normalisePath(LICENSE_NAME);
-        let content = readFileSync(licensePath, {encoding: "utf-8"});
-        content = content.replaceAll("##author##", packageName);
+        const targetLicensePath = normalisePath(LICENSE_NAME);
+        clonefile(srcLicensePath, targetLicensePath, {force: true});
 
-        writeFileSync(licensePath, content, {encoding: "utf-8"});
+        // Update license
+        let year = "" + new Date().getUTCFullYear();
+        let content = readFileSync(targetLicensePath, {encoding: "utf-8"});
+        content = content.replaceAll("##author##", authorName);
+        content = content.replaceAll("##year##", year);
+        content = content.replaceAll("##email##", `<${email}>`);
+        writeFileSync(targetLicensePath, content, {encoding: "utf-8"});
 
         return true;
     }
@@ -194,8 +219,8 @@ const init = async function (argv, {
 
         let genpackVersion
         const genpackPackageJsonPath = joinPath(__dirname, "package.json");
-        const info = require(genpackPackageJsonPath);
-        genpackVersion = info.version;
+        const genpackInfo = require(genpackPackageJsonPath);
+        genpackVersion = genpackInfo.version;
         if (simplifiedCliOptions.v || simplifiedCliOptions.version)
         {
             console.rawLog(genpackVersion);
@@ -219,7 +244,9 @@ const init = async function (argv, {
         const cjsFolder = normalisePath(cjsFolderName);
 
         // Key values
-        const authorName = simplifiedCliOptions.author || getUserName();
+        let authorName = simplifiedCliOptions.author || getUserName();
+        let authorEmail = simplifiedCliOptions.email || getUserEmail();
+        let licenseType = simplifiedCliOptions.license || "";
         let brandNewRepo = false;
         const tplFolder = joinPath(__dirname, TEMPLATE_FOLDER);
         const conditionalTplFolder = joinPath(__dirname, CONDITIONAL_TEMPLATE_FOLDER);
@@ -284,12 +311,16 @@ const init = async function (argv, {
         json.scripts["test:js"] = "nyc mocha";
         json.scripts["test"] = "npm run build:all && npm run test:js && npm run test:ts";
 
-        if (brandNewRepo)
+        if (brandNewRepo || licenseType)
         {
-            json.license = "MIT";
+            json.author = authorName || json.author;
+            licenseType = licenseType || json.license;
+
+            // Generate license file
+            generateLicense(licenseType, json, {email: authorEmail});
         }
-        json.license = json.license || "MIT";
-        json.author = json.author || authorName;
+
+        json.author = authorName || json.author;
 
         let cliPath = "";
         if (cliName)
@@ -312,9 +343,6 @@ const init = async function (argv, {
 
         // Generate readme file
         generateReadme({packageName, cjsPath, mjsPath});
-
-        // Generate license file
-        generateLicense({packageName, authorName});
 
         // Generate .gitignore and .npmignore
         generateGitIgnore(currentDir);
