@@ -65,6 +65,23 @@ $ genpack
 
 You will obtain an NPM hybrid package working with cjs, esm and typescript.
 
+<br/>
+
+---
+
+
+## Options
+
+
+| **Options**   | **default** | **Expect** | **Description**                            | 
+|---------------|-------------|------------|--------------------------------------------|
+| --version, -v | false       | boolean    | _Display GenPack version_                  |
+| --repo        | ""          | string     | _Repo URL_                                 |
+| --cli         | false       | boolean    | _To have the generated module support CLI_ |
+
+
+<br/>
+
 ---
 
 
