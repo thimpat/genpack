@@ -1,4 +1,3 @@
-
 ## Description
 
 GenPack is a package generator for npm
@@ -6,8 +5,6 @@ GenPack is a package generator for npm
 <br/>
 
 ---
-
-
 
 ## Installation
 
@@ -24,6 +21,7 @@ npm install genpack -g
 ```shell
 genpack
 ```
+
 <br/>
 
 ---
@@ -33,6 +31,7 @@ genpack
 To quickly generate an npm module, create a cjs folder + an index.cjs file.
 
 e.g.
+
 ```
 📁 package-root                
 │
@@ -44,12 +43,13 @@ e.g.
 <br/>
 
 📝 index.cjs content ↴
+
 ```javascript
-const add = function(a, b)
+const add = function (a, b)
 {
     return a + b;
 }
-module.exports.add = add ;
+module.exports.add = add;
 ```
 
 <br/><br/>
@@ -57,6 +57,7 @@ module.exports.add = add ;
 ##### From the CLI, go to the <package-root> directory, then run:
 
 💻 ↴
+
 ```shell
 $ genpack
 ```
@@ -69,21 +70,18 @@ You will obtain an NPM hybrid package working with cjs, esm and typescript.
 
 ---
 
-
 ## Options
-
 
 | **Options**   | **default** | **Expect** | **Description**                            | 
 |---------------|-------------|------------|--------------------------------------------|
 | --version, -v | false       | boolean    | _Display GenPack version_                  |
-| --repo        | ""          | string     | _Repo URL_                                 |
+| --repo        |             | string     | _Repo URL_                                 |
 | --cli         | false       | boolean    | _To have the generated module support CLI_ |
-
+| --author      |             | string     | _Author name_                              |
 
 <br/>
 
 ---
-
 
 ## Commands
 
@@ -96,7 +94,6 @@ $ npm run build:esm
 ``` 
 
 <br/>
-
 
 #### To update the tests after modifying unit-test.cjs:
 
