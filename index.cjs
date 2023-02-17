@@ -302,14 +302,14 @@ const init = async function (argv, {
         json.type = "module";
         json.scripts = json.scripts || {};
 
-        json.scripts["build:esm"] = `to-esm ${cjsPath} --output ${mjsFolder} --update-all --extension ${MJS_EXTENSION}`;
-        json.scripts["build:dts"] = `tsc ${mjsPath} --declaration --allowJs --emitDeclarationOnly --outDir .`;
-        json.scripts["build:test"] = `to-esm test/*.specs.cjs --output ./test/ --target esm --skipEsmResolution --skipLinks`;
-        json.scripts["build:all"] = "npm run build:esm && npm run build:dts && npm run build:test";
+        json.scripts["genpack:build:esm"] = `to-esm ${cjsPath} --output ${mjsFolder} --update-all --extension ${MJS_EXTENSION}`;
+        json.scripts["genpack:build:dts"] = `tsc ${mjsPath} --declaration --allowJs --emitDeclarationOnly --outDir .`;
+        json.scripts["genpack:build:test"] = `to-esm test/*.specs.cjs --output ./test/ --target esm --skipEsmResolution --skipLinks`;
+        json.scripts["genpack:build:all"] = "npm run genpack:build:esm && npm run genpack:build:dts && npm run genpack:build:test";
 
-        json.scripts["test:ts"] = "nyc mocha --config test/config/.mocharc.json";
-        json.scripts["test:js"] = "nyc mocha";
-        json.scripts["test"] = "npm run build:all && npm run test:js && npm run test:ts";
+        json.scripts["genpack:test:ts"] = "nyc mocha --config test/config/.mocharc.json";
+        json.scripts["genpack:test:js"] = "nyc mocha";
+        json.scripts["genpack:test"] = "npm run genpack:build:all && npm run genpack:test:js && npm run genpack:test:ts";
 
         if (brandNewRepo || licenseType)
         {
@@ -362,8 +362,8 @@ const init = async function (argv, {
         runShellCommand(`npm install -y to-esm typescript ts-node -D`);
 
         // Run launchers
-        runShellCommand(`npm run build:all`);
-        runShellCommand(`npm test`);
+        runShellCommand(`npm run genpack:build:all`);
+        runShellCommand(`npm run genpack:test`);
 
         const lastMessage = getLastCommitMessage();
         if (lastMessage === INITIAL_COMMIT_MESSAGE)

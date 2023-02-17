@@ -1,6 +1,6 @@
 /**
  * To generate tests for ESM:
- * $> npm run build:test
+ * $> npm run genpack:build:test
  */
 const {expect} = require("chai");
 

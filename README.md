@@ -92,7 +92,7 @@ You will obtain an NPM hybrid package working with cjs, esm and typescript.
 #### To update the esm/index.mjs file after modifying the cjs/index.cjs file, run:
 
 ```shell
-$ npm run build:esm
+$ npm run genpack:build:esm
 ``` 
 
 <br/>
@@ -100,7 +100,7 @@ $ npm run build:esm
 #### To update the tests after modifying unit-test.cjs:
 
 ```shell
-$ npm run build:test
+$ npm run genpack:build:test
 ```
 
 <br/>
@@ -108,6 +108,6 @@ $ npm run build:test
 #### To run the tests:
 
 ```shell
-$ npm test
+$ npm run genpack:test
 ```
 
