@@ -90,7 +90,7 @@ const runShellCommand = function (commandLine)
                 anaLogger.rawLog(line);
                 continue;
             }
-            console.log({lid: "GP4458"}, line);
+            console.log({lid: "GP4798"}, line);
         }
     }
 }
