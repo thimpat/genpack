@@ -293,7 +293,7 @@ const init = async function (argv, {
         let dtsPath = normalisePath(entryPoint + DTS_EXTENSION);
 
         // Copy template files
-        clonefile(tplFolder, currentDir, {force: brandNewRepo, silent: false, hideOverwriteError: true});
+        clonefile(tplFolder, currentDir, {recursive: true, force: brandNewRepo, silent: false, hideOverwriteError: true});
 
         // Update package.json
         const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
