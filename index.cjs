@@ -28,7 +28,7 @@ const SECOND_COMMIT_MESSAGE = "BUILD: Add GenPack files";
 const README_NAME = "README.md";
 const LICENSE_NAME = "LICENSE";
 const DEFAULT_LICENSE = "MIT";
-const BINARY_CLI_NAME = "cli.js";
+const BINARY_CLI_NAME = "cli";
 
 const CJS_EXTENSION = ".cjs";
 const MJS_EXTENSION = ".mjs";
@@ -196,7 +196,7 @@ const addRepoInformation = function ({repoUrl, packageJsonPath})
         const json = JSON.parse(packageJsonContent);
 
         json.dependencies = info.dependencies;
-        json.memDevDepencies =  info.memDevDepencies;
+        json.memDevDepencies = info.memDevDepencies;
 
         const content = JSON.stringify(json, null, 2);
         writeFileSync(packageJsonPath, content, {encoding: "utf-8"});
@@ -227,22 +227,50 @@ const init = async function (argv, {
             return
         }
 
-        let cliName = simplifiedCliOptions.cli || simplifiedCliOptions.bin || "";
-        if (cliName)
+        // Generate package.json if non-existent
+        const currentDir = process.cwd();
+        const packageJsonPath = joinPath(currentDir, "package.json");
+        if (!existsSync(packageJsonPath))
         {
-            if (cliName === true)
+            runShellCommand(`npm init -y`);
+        }
+
+        // Load package.json information
+        const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
+        const json = JSON.parse(packageJsonContent);
+        const packageName = json.name;
+
+        let cliPath = "";
+        let cliName = simplifiedCliOptions.cli || simplifiedCliOptions.bin || "";
+
+        // The --cli option was passed as a boolean
+        if (cliName === true)
+        {
+            cliName = packageName;
+        }
+
+        // Look for an eventual cli.js in the current directory
+        if (!cliName)
+        {
+            const found = [".js", ".cjs", ".mjs"].find((extension) =>
             {
-                cliName = BINARY_CLI_NAME;
-            }
-            else if (!cliName.endsWith("js"))
+                return existsSync(BINARY_CLI_NAME + extension);
+            });
+
+            if (found)
             {
-                cliName = cliName + ".js";
+                cliName = packageName;
+                cliPath = normalisePath(BINARY_CLI_NAME + found);
             }
         }
 
-        let repoUrl = simplifiedCliOptions.repo;
+        //
+        if (cliName && !cliPath)
+        {
+            cliPath = normalisePath(cliName);
+        }
 
-        const currentDir = process.cwd();
+        let repoUrl = simplifiedCliOptions.repo;
 
         const cjsFolder = normalisePath(cjsFolderName);
 
@@ -276,13 +304,6 @@ const init = async function (argv, {
             return false;
         }
 
-        // Generate package.json if non-existent
-        const packageJsonPath = joinPath(currentDir, "package.json");
-        if (!existsSync(packageJsonPath))
-        {
-            runShellCommand(`npm init -y`);
-        }
-
         // Generate .mjs
         const mjsFolder = normalisePath(mjsFolderName);
         runShellCommand(`to-esm ${cjsPath} --output ${mjsFolder} --update-all --extension .mjs`);
@@ -293,13 +314,14 @@ const init = async function (argv, {
         let dtsPath = normalisePath(entryPoint + DTS_EXTENSION);
 
         // Copy template files
-        clonefile(tplFolder, currentDir, {recursive: true, force: brandNewRepo, silent: false, hideOverwriteError: true});
+        clonefile(tplFolder, currentDir, {
+            recursive         : true,
+            force             : brandNewRepo,
+            silent            : false,
+            hideOverwriteError: true
+        });
 
         // Update package.json
-        const packageJsonContent = readFileSync(packageJsonPath, {encoding: "utf-8"});
-        const json = JSON.parse(packageJsonContent);
-
-        const packageName = json.name;
         json.main = `${mjsPath}`;
         json.typings = `${dtsPath}`;
         json.type = "module";
@@ -325,15 +347,17 @@ const init = async function (argv, {
 
         json.author = authorName || json.author;
 
-        let cliPath = "";
-        if (cliName)
+        if (cliPath)
         {
-            cliPath = normalisePath(cliName);
+            if (!existsSync(cliPath))
+            {
+                const srcCliPath = joinPath(conditionalTplFolder, BINARY_CLI_NAME + ".js");
+                clonefile(srcCliPath, cliPath, {silent: false, hideOverwriteError: true});
+            }
+
             json.bin = json.bin || {};
             json.bin[cliName] = cliPath;
-
-            const srcCliPath = joinPath(conditionalTplFolder, BINARY_CLI_NAME);
-            clonefile(srcCliPath, cliPath, {silent: false, hideOverwriteError: true});
+            console.log({lid: "GP3032"}, `Found CLI at [${cliPath}]`);
         }
 
         const content = JSON.stringify(json, null, 2);
