@@ -227,14 +227,17 @@ const init = async function (argv, {
             return
         }
 
-        let cliName = simplifiedCliOptions.cli || simplifiedCliOptions.bin;
-        if (cliName === true)
+        let cliName = simplifiedCliOptions.cli || simplifiedCliOptions.bin || "";
+        if (cliName)
         {
-            cliName = BINARY_CLI_NAME;
-        }
-        else if (!cliName.endsWith("js"))
-        {
-            cliName = cliName + ".js";
+            if (cliName === true)
+            {
+                cliName = BINARY_CLI_NAME;
+            }
+            else if (!cliName.endsWith("js"))
+            {
+                cliName = cliName + ".js";
+            }
         }
 
         let repoUrl = simplifiedCliOptions.repo;
