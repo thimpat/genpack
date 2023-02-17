@@ -10,8 +10,8 @@ const {expect} = require("chai");
 /** to-esm-esm: end-remove **/
 
 /** to-esm-esm: add
-// Put here, what you want to execute in esm
-import {...} from "../esm/index.mjs";
+// Add here, what you want to execute in esm
+// import {...} from "../esm/index.mjs";
  **/
 
 
